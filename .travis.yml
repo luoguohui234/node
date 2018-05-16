@@ -48,8 +48,7 @@ before_deploy:
   - bin/client_build
   - bin/server_build
   - mkdir binaries
-  - bin/travis_scripts/package_tar_gz.sh client binaries/mysterium_client.tar.gz
-  - bin/travis_scripts/package_tar_gz.sh server binaries/mysterium_server.tar.gz
+  - bin/package_all $TRAVIS_TAG
 
 deploy:
   #This is workaround for travis issue https://github.com/travis-ci/travis-ci/issues/9312
@@ -68,12 +67,13 @@ deploy:
       branch: master
   - provider: releases
     file_glob: true
-    file: binaries/*
+    file: build/package/*
     skip_cleanup: true
     api_key: "$GIT_RELEASES_API_KEY"
     on:
       tags: true
-      branch: master
+# TODO: uncomment
+#      branch: master
 notifications:
   slack:
     rooms:
