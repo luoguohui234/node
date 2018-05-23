@@ -18,9 +18,9 @@
 package openvpn
 
 import (
+	"fmt"
 	"path/filepath"
 	"strconv"
-	"fmt"
 )
 
 // NewConfig creates new openvpn configuration structure and takes configuration directory as parameter for file param serialization
