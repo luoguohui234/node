@@ -18,7 +18,12 @@
 package openvpn
 
 import (
+	"bufio"
+	"bytes"
 	"github.com/stretchr/testify/assert"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"testing"
 )
 
@@ -46,4 +51,27 @@ func TestParam_ToFile(t *testing.T) {
 	optionValue, err := option.toFile()
 	assert.NoError(t, err)
 	assert.Equal(t, "very-value 1234", optionValue)
+}
+
+func TestSpacesDontSplitIntoTwoParams(t *testing.T) {
+	optionWithSpaces := OptionParam("name", "value with spaces")
+	args, err := optionWithSpaces.toCli()
+	assert.NoError(t, err)
+
+	cmd := exec.Command("go", "run", filepath.Join("testdata", "args.go"), args)
+	buff := bytes.Buffer{}
+	cmd.Stdout = &buff
+	cmd.Stderr = os.Stdout
+	err = cmd.Run()
+	assert.NoError(t, err)
+
+	lineReader := bufio.NewReader(&buff)
+	argValue, err := lineReader.ReadString('\n')
+	assert.NoError(t, err)
+	assert.Equal(t, "--name value with spaces\n", argValue)
+
+	outputEnd, err := lineReader.ReadString('\n')
+	assert.NoError(t, err)
+	assert.Equal(t, "END\n", outputEnd)
+
 }
